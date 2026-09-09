@@ -1,0 +1,52 @@
+plugins {
+    id 'com.android.application'
+}
+
+def quoteBuildConfig(String value) {
+    return '"' + value.replace('\\', '\\\\').replace('"', '\\"') + '"'
+}
+
+android {
+    namespace 'com.alphacode.wifiprobe'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.alphacode.wifiprobe'
+        minSdk 24
+        targetSdk 25
+        versionCode 4
+        versionName '0.4.0-auto-recreate-p2p'
+
+        buildConfigField 'String', 'DEFAULT_MODEL_ID', quoteBuildConfig(probeProperty('probe.robot.model.id', ''))
+        buildConfigField 'String', 'DEFAULT_WEBSOCKET_BASE', quoteBuildConfig(probeProperty('probe.websocket.base', 'wss://backend.alpa.vn/ws'))
+
+        ndk {
+            abiFilters 'arm64-v8a'
+        }
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+
+    lint {
+        // Deliberate for this API-24-only diagnostic probe; it is not a Play Store app.
+        disable 'ExpiredTargetSdkVersion'
+        abortOnError true
+    }
+}
+
+dependencies {
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+}

@@ -1,0 +1,25 @@
+import java.util.Properties
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.3.2'
+    }
+}
+
+def probeProperties = new Properties()
+def probePropertiesFile = rootProject.file('local.properties')
+if (probePropertiesFile.exists()) {
+    probePropertiesFile.withInputStream { probeProperties.load(it) }
+}
+
+ext.probeProperty = { String key, String fallback ->
+    probeProperties.getProperty(key, fallback)
+}
+
+tasks.register('clean', Delete) {
+    delete rootProject.layout.buildDirectory
+}
