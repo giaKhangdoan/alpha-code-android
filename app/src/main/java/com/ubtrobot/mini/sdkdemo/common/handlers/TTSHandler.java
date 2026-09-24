@@ -13,8 +13,20 @@ import com.ubtrobot.mini.voice.VoicePool;
 
 public class TTSHandler {
     private static final String TAG = "TTSHandler";
+    private static TTSHandler instance;
     private static EnglishTTS englishTTS;
     private static VietnameseTTS vietnameseTTS;
+
+    private TTSHandler() {
+        // Private constructor for singleton
+    }
+
+    public static synchronized TTSHandler getInstance() {
+        if (instance == null) {
+            instance = new TTSHandler();
+        }
+        return instance;
+    }
 
     private static TTSCallback defaultCallback(String text) {
         return new TTSCallback() {
@@ -38,14 +50,15 @@ public class TTSHandler {
         };
     }
 
-    public static void init(Context context) {
+    public void init(Context context) {
         englishTTS = EnglishTTS.getInstance(context);
         vietnameseTTS = VietnameseTTS.getInstance(context);
         Log.i(TAG, "Done init");
     }
 
     public void doTTS(String text, String lang) {
-        if (text == null) return;
+        if (text == null)
+            return;
         if (lang.equals("en")) {
             englishTTS.doTTS(text, defaultCallback(text));
         } else {
@@ -54,16 +67,28 @@ public class TTSHandler {
     }
 
     public void doTTS(String text, String lang, TTSCallback callback) {
-        if (text == null) return;
+        if (text == null)
+            return;
+        TTSCallback actualCallback = callback != null ? callback : defaultCallback(text);
         if (lang.equals("en")) {
-            englishTTS.doTTS(text, callback);
+            englishTTS.doTTS(text, actualCallback);
         } else {
-            vietnameseTTS.doTTS(text, callback);
+            vietnameseTTS.doTTS(text, actualCallback);
         }
     }
 
-    public void stopIfPlaying(){
-        englishTTS.stopIfPlaying();
-        vietnameseTTS.stopIfPlaying();
+    public void stopIfPlaying() {
+        if (englishTTS != null)
+            englishTTS.stopIfPlaying();
+        if (vietnameseTTS != null)
+            vietnameseTTS.stopIfPlaying();
+    }
+
+    /**
+     * Alias for stopIfPlaying - called from RobotCommandHandler
+     */
+    public void stop() {
+        stopIfPlaying();
+        Log.i(TAG, "TTS stopped");
     }
 }

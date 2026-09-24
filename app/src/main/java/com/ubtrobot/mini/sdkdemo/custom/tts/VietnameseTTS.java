@@ -49,15 +49,18 @@ public class VietnameseTTS implements TTS {
             shutdown();
         }
 
+        // Use Google TTS Engine explicitly for Vietnamese support
+        String googleTtsEngine = "com.google.android.tts";
         tts = new TextToSpeech(context.getApplicationContext(), status -> {
             if (status == TextToSpeech.SUCCESS) {
+                Log.i(TAG, "TTS initialized with engine: " + tts.getDefaultEngine());
                 setLanguageForVietnamese();
             } else {
                 isReady = false;
                 Log.e(TAG, "TTS Initialization Failed: " + status);
                 notifyAllCallbacks(TTSCallback::onError);
             }
-        });
+        }, googleTtsEngine);
 
         setupProgressListener();
     }
@@ -92,19 +95,22 @@ public class VietnameseTTS implements TTS {
             @Override
             public void onStart(String utteranceId) {
                 TTSCallback cb = callbackMap.get(utteranceId);
-                if (cb != null) mainHandler.post(cb::onStart);
+                if (cb != null)
+                    mainHandler.post(cb::onStart);
             }
 
             @Override
             public void onDone(String utteranceId) {
                 TTSCallback cb = callbackMap.remove(utteranceId);
-                if (cb != null) mainHandler.post(cb::onDone);
+                if (cb != null)
+                    mainHandler.post(cb::onDone);
             }
 
             @Override
             public void onError(String utteranceId) {
                 TTSCallback cb = callbackMap.remove(utteranceId);
-                if (cb != null) mainHandler.post(cb::onError);
+                if (cb != null)
+                    mainHandler.post(cb::onError);
             }
 
             @Override
@@ -113,11 +119,14 @@ public class VietnameseTTS implements TTS {
             }
         });
     }
+
     @Override
-    public void stopIfPlaying(){
-        if(!tts.isSpeaking()) return;
+    public void stopIfPlaying() {
+        if (!tts.isSpeaking())
+            return;
         tts.stop();
     }
+
     @Override
     public void doTTS(String text) {
         doTTS(text, null);
@@ -125,8 +134,14 @@ public class VietnameseTTS implements TTS {
 
     @Override
     public void doTTS(String text, TTSCallback callback) {
+        // Retry setting language if not ready
+        if (!isReady && tts != null) {
+            Log.i(TAG, "TTS not ready, re-trying to set language to Vietnamese...");
+            setLanguageForVietnamese();
+        }
+
         if (!isReady) {
-            Log.w(TAG, "TTS not ready yet → will skip text: " + text);
+            Log.w(TAG, "TTS still not ready yet → will skip text: " + text);
             if (callback != null) {
                 mainHandler.post(callback::onError);
             }
@@ -162,6 +177,53 @@ public class VietnameseTTS implements TTS {
     @Override
     public boolean isReady() {
         return isReady;
+    }
+
+    public String debugTTSInfo() {
+        StringBuilder sb = new StringBuilder();
+        if (tts == null)
+            return "TTS chưa khởi tạo";
+
+        // 1. Check Engine hiện tại
+        String currentEngine = tts.getDefaultEngine();
+        sb.append("Engine đang dùng: ").append(currentEngine).append("\n");
+
+        // 2. Check danh sách Engines
+        try {
+            java.util.List<TextToSpeech.EngineInfo> engines = tts.getEngines();
+            sb.append("DS Engine cài đặt:\n");
+            for (TextToSpeech.EngineInfo engine : engines) {
+                sb.append("- ").append(engine.label).append(" (").append(engine.name).append(")\n");
+            }
+        } catch (Exception e) {
+            sb.append("Lỗi lấy DS Engine: ").append(e.getMessage()).append("\n");
+        }
+
+        // 3. Check trạng thái Tiếng Việt
+        Locale vi = new Locale("vi");
+        int status = tts.isLanguageAvailable(vi);
+        sb.append("Trạng thái Tiếng Việt: ");
+        switch (status) {
+            case TextToSpeech.LANG_AVAILABLE:
+                sb.append("Sẵn sàng (Available)");
+                break;
+            case TextToSpeech.LANG_COUNTRY_AVAILABLE:
+                sb.append("Sẵn sàng (Country Available)");
+                break;
+            case TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE:
+                sb.append("Sẵn sàng (Var Available)");
+                break;
+            case TextToSpeech.LANG_MISSING_DATA:
+                sb.append("Thiếu dữ liệu (Cần tải về)");
+                break;
+            case TextToSpeech.LANG_NOT_SUPPORTED:
+                sb.append("Không hỗ trợ");
+                break;
+            default:
+                sb.append("Mã lỗi: ").append(status);
+        }
+
+        return sb.toString();
     }
 
     private void notifyAllCallbacks(Consumer<TTSCallback> action) {

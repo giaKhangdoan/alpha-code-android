@@ -39,7 +39,7 @@ public class CodingBlockHandler {
     public CodingBlockHandler() {
         this.actionHandler = new ActionHandler();
         this.expressionHandler = new ExpressionHandler();
-        this.ttsHandler = new TTSHandler();
+        this.ttsHandler = TTSHandler.getInstance();
         this.extendedActionHandler = new ExtendedActionHandler();
     }
 
@@ -162,18 +162,19 @@ public class CodingBlockHandler {
         int g = c.optInt("g", 255);
         int b = c.optInt("b", 255);
         int duration = data.optInt("duration", 0);
-        MouthLedApi.get().startNormalModel(Color.argb(0, r, g, b), duration * 1000, com.ubtrobot.commons.Priority.HIGH, new ResponseListener() {
-            @Override
-            public void onResponseSuccess(Object o) {
-                onComplete.run();
-            }
+        MouthLedApi.get().startNormalModel(Color.argb(0, r, g, b), duration * 1000, com.ubtrobot.commons.Priority.HIGH,
+                new ResponseListener() {
+                    @Override
+                    public void onResponseSuccess(Object o) {
+                        onComplete.run();
+                    }
 
-            @Override
-            public void onFailure(int i, @NonNull String s) {
-                onComplete.run();
-                Log.e(TAG, "LED block failed: " + s);
-            }
-        });
+                    @Override
+                    public void onFailure(int i, @NonNull String s) {
+                        onComplete.run();
+                        Log.e(TAG, "LED block failed: " + s);
+                    }
+                });
     }
 
     private void handleTTSBlock(String text, String lang, Runnable onComplete) {

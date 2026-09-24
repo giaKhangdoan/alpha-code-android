@@ -28,14 +28,29 @@ import java.util.List;
 
 public class DanceHandler {
     private static final String TAG = "DanceHandler";
+    private static DanceHandler instance;
+
     private MiniMediaPlayer miniPlayer;
     private ActionApi actionApi;
     private ExpressApi expressApi;
     private MouthLedApi mouthLedApi;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final List<Runnable> scheduledActions = new ArrayList<>();
+    private android.content.Context appContext;
 
-    public DanceHandler() {
+    private DanceHandler() {
+        // Private constructor for singleton
+    }
+
+    public static synchronized DanceHandler getInstance() {
+        if (instance == null) {
+            instance = new DanceHandler();
+        }
+        return instance;
+    }
+
+    public void init(android.content.Context context) {
+        this.appContext = context.getApplicationContext();
         initRobot();
     }
 
@@ -138,15 +153,49 @@ public class DanceHandler {
             handler.removeCallbacks(r);
         }
         scheduledActions.clear();
-        if(miniPlayer != null) {
+        if (miniPlayer != null) {
             miniPlayer.stop();
         }
     }
 
-    private void doAction(String actionId, double startTime, double duration, String type, int finalA, int finalR, int finalG, int finalB) {
+    /**
+     * Alias for stopAllScheduledActions - called from RobotCommandHandler
+     */
+    public void stop() {
+        stopAllScheduledActions();
+        Log.i(TAG, "Dance stopped");
+    }
+
+    /**
+     * Overloaded jumpWithMusic for Gson JsonArray support.
+     * Converts Gson objects to org.json format and delegates.
+     */
+    public void jumpWithMusic(String musicUrl, com.google.gson.JsonArray actionsArray) {
+        try {
+            // Convert Gson to org.json
+            JSONObject jsonObject = new JSONObject();
+            JSONObject musicInfo = new JSONObject();
+            musicInfo.put("music_file_url", musicUrl);
+            jsonObject.put("music_info", musicInfo);
+
+            JSONObject activity = new JSONObject();
+            JSONArray actions = new JSONArray(actionsArray.toString());
+            activity.put("actions", actions);
+            jsonObject.put("activity", activity);
+
+            // Call existing method
+            jumpWithMusic(jsonObject);
+        } catch (Exception e) {
+            Log.e(TAG, "Error converting Gson to JSONObject", e);
+        }
+    }
+
+    private void doAction(String actionId, double startTime, double duration, String type, int finalA, int finalR,
+            int finalG, int finalB) {
 
         Log.i(TAG, "Executing action: " + actionId + " at time: " + startTime + " duration: " + duration);
-        LogManager.log(LogLevel.INFO, TAG, "Executing action: " + actionId + " at time: " + startTime + " duration: " + duration);
+        LogManager.log(LogLevel.INFO, TAG,
+                "Executing action: " + actionId + " at time: " + startTime + " duration: " + duration);
 
         // Set LED color with activity duration time
         try {
@@ -198,7 +247,8 @@ public class DanceHandler {
                     });
                 } catch (Exception e) {
                     Log.e(TAG, "Error executing expression " + actionId, e);
-                    LogManager.log(LogLevel.ERROR, TAG, "Error executing expression " + actionId + ": " + e.getMessage());
+                    LogManager.log(LogLevel.ERROR, TAG,
+                            "Error executing expression " + actionId + ": " + e.getMessage());
                 }
                 break;
             default:

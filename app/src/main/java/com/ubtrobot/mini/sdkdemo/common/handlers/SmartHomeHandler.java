@@ -26,7 +26,7 @@ public class SmartHomeHandler {
     public SmartHomeHandler() {
         Retrofit retrofit = ApiClient.getRobotServiceInstance();
         api = retrofit.create(SmartHomeApi.class);
-        ttsHandler = new TTSHandler();
+        ttsHandler = TTSHandler.getInstance();
     }
 
     public static SmartHomeHandler getInstance() {
@@ -40,8 +40,7 @@ public class SmartHomeHandler {
             @NonNull String id,
             @NonNull String name,
             @NonNull String message,
-            @NonNull String language
-    ) {
+            @NonNull String language) {
         Call<VoiceResponseDto> call = api.smartHomeControl(id, name, message, language);
 
         call.enqueue(new Callback<VoiceResponseDto>() {
@@ -57,11 +56,13 @@ public class SmartHomeHandler {
                 if (body.isSuccess()) {
                     ttsHandler.doTTS(body.getMessage(), language);
                     Log.d(TAG, "SmartHome API Success: " + body.getMessage());
-                    LogManager.log(LogLevel.INFO, "smarthome", "SmartHome API Success: " + body.getMessage(), "smarthome", name);
+                    LogManager.log(LogLevel.INFO, "smarthome", "SmartHome API Success: " + body.getMessage(),
+                            "smarthome", name);
                 } else {
                     ttsHandler.doTTS(body.getMessage(), language);
                     Log.e(TAG, "SmartHome API Failed: " + body.getMessage());
-                    LogManager.log(LogLevel.ERROR, "smarthome", "SmartHome API Failed: " + body.getMessage(), "smarthome", name);
+                    LogManager.log(LogLevel.ERROR, "smarthome", "SmartHome API Failed: " + body.getMessage(),
+                            "smarthome", name);
                 }
             }
 

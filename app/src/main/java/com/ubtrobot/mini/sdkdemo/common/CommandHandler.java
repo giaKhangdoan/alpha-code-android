@@ -39,7 +39,6 @@ import org.json.JSONObject;
 
 import java.util.List;
 
-
 public class CommandHandler {
     private static final String TAG = "CommandHandler";
     // Handler instances
@@ -67,9 +66,9 @@ public class CommandHandler {
         this.extendedActionHandler = new ExtendedActionHandler();
         this.skillHandler = new SkillHandler();
         this.expressionHandler = new ExpressionHandler();
-        this.danceHandler = new DanceHandler();
+        this.danceHandler = DanceHandler.getInstance();
         this.cameraHandler = new CameraHandler();
-        this.ttsHandler = new TTSHandler();
+        this.ttsHandler = TTSHandler.getInstance();
         this.systemHandler = SystemHandler.get();
         this.faceHandler = FaceHandler.get();
         this.webRTCHandler = WebRTCHandler.getInstance();
@@ -86,7 +85,7 @@ public class CommandHandler {
     }
 
     public void handleCommand(String type, JSONObject data, String lang) throws JSONException {
-        if(type == null || type.isEmpty()){
+        if (type == null || type.isEmpty()) {
             Log.e(TAG, "Invalid type");
             return;
         }
@@ -95,15 +94,14 @@ public class CommandHandler {
         String code = data.optString("code");
         Log.e(TAG, data.toString());
 
-
-
         try {
             switch (type) {
                 case "video_capture":
                     cameraHandler.handleVideoGenerate(text, lang);
                     break;
                 case "smart_home":
-                    smartHomeHandler.smartHomeControl(data.optString("id"), data.optString("name"), data.optString("message"), lang);
+                    smartHomeHandler.smartHomeControl(data.optString("id"), data.optString("name"),
+                            data.optString("message"), lang);
                     break;
                 case "submission_start":
                     submissionHandler.handleSubmissionStart(data, lang);
@@ -152,7 +150,8 @@ public class CommandHandler {
 
                         @Override
                         public void onDone() {
-                            CameraPreviewCapture previewCapture = new CameraPreviewCapture(Utils.getContext().getApplicationContext());
+                            CameraPreviewCapture previewCapture = new CameraPreviewCapture(
+                                    Utils.getContext().getApplicationContext());
                             previewCapture.openCamera(lang);
                         }
 
@@ -171,18 +170,18 @@ public class CommandHandler {
                     if (name != null && !name.isEmpty()) {
                         faceHandler.handleRegister(name);
                     } else {
-                        ttsHandler.doTTS(lang.equals("en") ? "Please provide a name to register" : "Vui lòng cung cấp tên để đăng ký", lang);
+                        ttsHandler.doTTS(lang.equals("en") ? "Please provide a name to register"
+                                : "Vui lòng cung cấp tên để đăng ký", lang);
                     }
                     break;
                 case "osmo_card":
                     JSONArray actionsArray = data.getJSONArray("actions");
                     List<OsmoCardAction> list = OsmoCardAction.parseActionsArray(actionsArray);
-                    if(list.isEmpty()){
+                    if (list.isEmpty()) {
                         Log.e(TAG, "No valid Osmo actions found");
                         ttsHandler.doTTS(
                                 lang.equals("vi") ? "Không tìm thấy thẻ Osmo nào cả" : "I couldn't find any Osmo card",
-                                lang
-                        );
+                                lang);
                         return;
                     }
                     osmoHandler.executeActions(list, new OsmoActionsHandler.ExecutionCallback() {
@@ -204,7 +203,7 @@ public class CommandHandler {
                 case "webrtc_stop":
                     webRTCHandler.handleWebRTCStop();
                     break;
-                case "process_text": //This is for calling from Web. This isn't from within the app
+                case "process_text": // This is for calling from Web. This isn't from within the app
                     byte[] msg = new RobotMessageBuilder().addParameter("text", code).setType("process-text").build();
                     RobotSocketManager.getInstance().sendBinaryMessage(msg);
                     break;
@@ -246,7 +245,7 @@ public class CommandHandler {
         }
     }
 
-    private void stopEverything(){
+    private void stopEverything() {
         ActionApi actionApi = ActionApi.get();
         ActionExApi actionExApi = ActionExApi.get();
         MouthLedApi ledApi = MouthLedApi.get();
@@ -269,7 +268,7 @@ public class CommandHandler {
 
             }
         });
-        if(actionApi.isPlaying()){
+        if (actionApi.isPlaying()) {
             actionApi.stopAction();
             actionApi.playAction("stand_up", null);
         }

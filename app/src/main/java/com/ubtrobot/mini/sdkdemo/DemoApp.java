@@ -26,14 +26,14 @@ import com.ubtrobot.speech.SpeechSettings;
 import com.ubtrobot.ulog.FwLoggerFactory2;
 import com.ubtrobot.ulog.logger.android.AndroidLoggerFactory;
 
-
 public class DemoApp extends Application {
 
     public static final String TAG = "API_TAG";
+
     @Override
     public void onCreate() {
         super.onCreate();
-        TTSHandler.init(Utils.getContext().getApplicationContext());
+        TTSHandler.getInstance().init(Utils.getContext().getApplicationContext());
         PropertiesApi.setRootPath(Path.DIR_MINI_FILES_SDCARD_ROOT);
         SDKInit.initialize(this);
 
@@ -43,9 +43,10 @@ public class DemoApp extends Application {
 
         initSpeech();
     }
-    private void initSpeech(){
+
+    private void initSpeech() {
         StringBuffer param = new StringBuffer();
-        try{
+        try {
             param.append("appid=").append(getString(R.string.app_id));
             param.append(",");
             param.append(SpeechConstant.ENGINE_MODE + "=" + SpeechConstant.MODE_MSC);
@@ -77,14 +78,14 @@ public class DemoApp extends Application {
         }
     }
 
-//    @Override
-//    protected void onStartFailed(UbtSkillInfo ubtSkillInfo) {
-//
-//    }
-//
-//    @Override
-//    protected void onInterrupted() {
-//
-//    }
+    // @Override
+    // protected void onStartFailed(UbtSkillInfo ubtSkillInfo) {
+    //
+    // }
+    //
+    // @Override
+    // protected void onInterrupted() {
+    //
+    // }
 
 }

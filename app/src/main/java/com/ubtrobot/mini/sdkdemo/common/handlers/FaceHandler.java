@@ -15,7 +15,7 @@ import java.util.UUID;
 public class FaceHandler {
     private static final String TAG = "FaceHandler";
     private final FaceApi faceApi = FaceApi.get();
-    private TTSHandler tts = new TTSHandler();
+    private TTSHandler tts = TTSHandler.getInstance();
     private static FaceHandler instance;
     private static String currentUId = "";
 
@@ -95,8 +95,10 @@ public class FaceHandler {
     }
 
     private String buildNamesSentence(List<String> names, String lang) {
-        if (names.isEmpty()) return "";
-        if (names.size() == 1) return names.get(0);
+        if (names.isEmpty())
+            return "";
+        if (names.size() == 1)
+            return names.get(0);
         String last = names.get(names.size() - 1);
         String joiner = lang.equals("vi") ? " và " : " and ";
         return String.join(", ", names.subList(0, names.size() - 1)) + joiner + last;

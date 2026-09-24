@@ -20,7 +20,7 @@ public class CameraHandler {
     public CameraHandler() {
         this.takePictureActivity = TakePictureActivity.get();
         this.actionApi = ActionApi.get();
-        this.tts = new TTSHandler();
+        this.tts = TTSHandler.getInstance();
     }
 
     public void handleQRCode(String text, String lang) {
@@ -54,7 +54,7 @@ public class CameraHandler {
         });
     }
 
-    public void handleVideoGenerate(String text, String lang){
+    public void handleVideoGenerate(String text, String lang) {
         final String message = (text == null || text.trim().isEmpty())
                 ? "Please place the picture under my feet in my view. Now I will bend down to capture it."
                 : text;

@@ -1,24 +1,29 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.protobuf'
 android {
-    compileSdkVersion 28
+    namespace 'com.ubtrobot.mini.sdkdemo'
+    compileSdkVersion 34
     defaultConfig {
         applicationId "com.ubtrobot.mini.sdkdemo"
         minSdkVersion 24
-        targetSdkVersion 28
+        targetSdkVersion 34
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        buildConfigField "String", "API_ROBOT_SERVICE_PATH", "\"${getLocalProperty('api.robotservice.path', '')}\""
+        buildConfigField "String", "API_ROBOT_SERVICE_PATH", "\"${getLocalProperty('api.spring.path', '')}\""
         buildConfigField "String", "API_PYTHON_PATH", "\"${getLocalProperty('api.python.path', '')}\""
         buildConfigField "String", "API_WEBSOCKET", "\"${getLocalProperty('api.websocket', '')}\""
         buildConfigField "String", "API_LOGSERVICE_PATH", "\"${getLocalProperty('api.logservice.path', '')}\""
-        buildConfigField "String", "ROBOT_MODEL_ID", "\"${getLocalProperty('x-robot-model-id', '')}\""
+        buildConfigField "String", "ROBOT_MODEL_ID", "\"${getLocalProperty('robot_model_id', '')}\""
 
         multiDexEnabled true
         ndk {
             abiFilters 'arm64-v8a'
         }
+    }
+
+    buildFeatures {
+        buildConfig true
     }
 
     buildTypes {
@@ -41,16 +46,6 @@ android {
     lintOptions {
         abortOnError false
     }
-    sourceSets {
-        main {
-            proto {
-                srcDir 'src/main/proto'
-            }
-            java {
-                srcDirs 'src/main/java', 'build/generated/source/proto/main/java'
-            }
-        }
-    }
 }
 
 repositories {
@@ -64,17 +59,24 @@ repositories {
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation files('libs/Msc.jar')
+    implementation files('libs/speech-sdk.jar')
+    implementation files('libs/eventbus-3.1.1.jar')
+    implementation files('libs/protobuf-java-3.4.0.jar')
+    implementation files('libs/mini-outer-sdk-2.4.2.jar')
+    implementation(name: 'wakeup-5.0.0', ext: 'aar')
+    implementation(name: 'utillib-1.2.8', ext: 'aar')
+    implementation(name: 'weinalib-5.0.1', ext: 'aar')
+    implementation(name: 'sal-speech-1.0.0', ext: 'aar')
+    implementation(name: 'tencent-vad-1.0.0', ext: 'aar')
+    implementation(name: 'phonecall-sdk-release', ext: 'aar')
+    implementation(name: 'impl-wakeup-dingdang-1.0.0', ext: 'aar')
+    implementation(name: 'speechFramework-oversea-release', ext: 'aar')
     implementation 'com.android.support:appcompat-v7:28.+'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
-    implementation files('libs/speech-sdk.jar')
-    implementation files('libs/mini-outer-sdk-2.4.2.jar')
-    implementation files('libs/Msc.jar')
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
-    implementation(name: 'phonecall-sdk-release', ext: 'aar')
-    implementation(name: 'utillib-1.2.8', ext: 'aar')
     implementation 'com.google.code.gson:gson:2.7'
     implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
     implementation 'com.google.zxing:core:3.3.0'
@@ -89,16 +91,13 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
 
     //Speech
-    implementation(name: 'impl-wakeup-dingdang-1.0.0', ext: 'aar')
-    implementation(name: 'sal-speech-1.0.0', ext: 'aar')
-    implementation(name: 'speechFramework-oversea-release', ext: 'aar')
-    implementation(name: 'tencent-vad-1.0.0', ext: 'aar')
-    implementation(name: 'weinalib-5.0.1', ext: 'aar')
-    implementation(name: 'wakeup-5.0.0', ext: 'aar')
     implementation 'com.alphacephei:vosk-android:0.3.47'
 
     // WebRTC
     implementation 'com.infobip:google-webrtc:1.0.0035529'
+
+    // HTTP Server for Flutter App communication
+    implementation 'org.nanohttpd:nanohttpd:2.3.1'
 }
 
 protobuf {

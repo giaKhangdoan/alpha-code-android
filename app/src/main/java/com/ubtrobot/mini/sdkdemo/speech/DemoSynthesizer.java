@@ -3,6 +3,7 @@ package com.ubtrobot.mini.sdkdemo.speech;
 import android.util.Log;
 import com.ubtrobot.mini.sdkdemo.MainActivity;
 import com.ubtrobot.mini.sdkdemo.custom.tts.EnglishTTS;
+import com.ubtrobot.mini.sdkdemo.custom.tts.VietnameseTTS;
 import com.ubtrobot.mini.sdkdemo.custom.tts.TTSCallback;
 import com.ubtrobot.speech.AbstractSynthesizer;
 import com.ubtrobot.speech.SpeakingVoice;
@@ -16,7 +17,7 @@ public class DemoSynthesizer extends AbstractSynthesizer {
 
     @Override
     protected void startSynthesizing(SynthesisOption synthesisOption) {
-        EnglishTTS.getInstance().doTTS(synthesisOption.getInputText(), new TTSCallback() {
+        VietnameseTTS.getInstance().doTTS(synthesisOption.getInputText(), new TTSCallback() {
             @Override
             public void onStart() {
 

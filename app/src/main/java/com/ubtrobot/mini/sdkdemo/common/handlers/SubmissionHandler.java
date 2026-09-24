@@ -12,7 +12,7 @@ public class SubmissionHandler {
     private TTSHandler ttsHandler;
 
     public SubmissionHandler() {
-        this.ttsHandler = new TTSHandler();
+        this.ttsHandler = TTSHandler.getInstance();
     }
 
     /**
@@ -26,10 +26,8 @@ public class SubmissionHandler {
             if (accountLessonId == null || accountLessonId.isEmpty()) {
                 Log.e(TAG, "account_lesson_id is missing in submission_start");
                 ttsHandler.doTTS(
-                        lang.equals("vi") ? "Lỗi: Không tìm thấy ID bài học" :
-                                "Error: Account lesson ID is required",
-                        lang
-                );
+                        lang.equals("vi") ? "Lỗi: Không tìm thấy ID bài học" : "Error: Account lesson ID is required",
+                        lang);
                 return;
             }
 
@@ -40,10 +38,9 @@ public class SubmissionHandler {
 
             // Thông báo cho người dùng
             ttsHandler.doTTS(
-                    lang.equals("vi") ? "Bắt đầu ghi nhận bài làm. Tôi đã sẵn sàng." :
-                            "Submission started. I'm ready to record your actions.",
-                    lang
-            );
+                    lang.equals("vi") ? "Bắt đầu ghi nhận bài làm. Tôi đã sẵn sàng."
+                            : "Submission started. I'm ready to record your actions.",
+                    lang);
 
         } catch (Exception e) {
             Log.e(TAG, "Error handling submission_start", e);
@@ -59,10 +56,8 @@ public class SubmissionHandler {
             if (!LogManager.isSubmissionActive()) {
                 Log.w(TAG, "No active submission to end");
                 ttsHandler.doTTS(
-                        lang.equals("vi") ? "Không tìm thấy bài làm đang hoạt động" :
-                                "No active submission found",
-                        lang
-                );
+                        lang.equals("vi") ? "Không tìm thấy bài làm đang hoạt động" : "No active submission found",
+                        lang);
                 return;
             }
 
@@ -74,10 +69,8 @@ public class SubmissionHandler {
 
             // Thông báo hoàn tất
             ttsHandler.doTTS(
-                    lang.equals("vi") ? "Bài làm của bạn đã được gửi!" :
-                            "Your work has been submitted successfully!",
-                    lang
-            );
+                    lang.equals("vi") ? "Bài làm của bạn đã được gửi!" : "Your work has been submitted successfully!",
+                    lang);
 
         } catch (Exception e) {
             Log.e(TAG, "Error handling submission_end", e);
